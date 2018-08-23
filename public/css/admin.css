@@ -1,0 +1,34 @@
+.level{
+    display:  block;
+    font-size:  10px;
+    color: rgba(255,255,255,0.8);
+}
+.content-1000{
+    max-width: 1000px;
+    margin: auto;
+}
+.icon_reaction{
+    width: 50px;
+    display: inline-block;
+    position: relative;
+}
+.icon_reaction img{
+    width: 100%;
+    cursor: pointer;
+}
+.reaction .active:before{
+    position: absolute;
+    content: "";
+    background-image: url(/images/v.png);
+    width: 20px;
+    height: 20px;
+    display: block;
+    bottom: 15%;
+    right: 0%;
+    background-size: 20px;
+}
+@media only screen and (max-width: 600px) {
+    .reaction{
+        text-align:center;
+    }
+}
