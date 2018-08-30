@@ -30,6 +30,9 @@ Route::group(['prefix'=>'admin'],function(){
     Route::group(['middleware' => 'admin'],function(){
         
         Route::get('/','Admin\HomeController@index');
+        Route::get('/adduseragent','Admin\HomeController@addUserAgent');
+        Route::get('/getuseragent','Admin\HomeController@getUserAgent');
+        
         Route::any('/logout','Admin\LoginController@logout');
         Route::get('/tach-token',function(){
             return view('admin.token.tach');
@@ -41,6 +44,12 @@ Route::group(['prefix'=>'admin'],function(){
         Route::get('/up-khien',function(){
             return view('admin.token.upkhien');
         });
+        
+        Route::get('/getuidgroup',function(){
+            return view('admin.tools.get_member_group');
+        });
+        
+        
         Route::get('/add-token',function(){
             return view('admin.token.add');
         });

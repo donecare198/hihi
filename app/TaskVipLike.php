@@ -14,7 +14,7 @@ class TaskVipLike extends Moloquent
      * @var array
      */
     protected $fillable = [
-        'fbid', 'postid','hoanthanh','story','limit','goi','reaction','updated_at','created_at'
+        'fbid', 'postid','hoanthanh','story','limit','goi','reaction','updated_at','created_at','__v'
     ]; 
     /**
      * The attributes that should be hidden for arrays.

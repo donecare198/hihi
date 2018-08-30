@@ -12,13 +12,13 @@ use App\Viplike;
 class HomeController extends Controller
 {
     function index(){
-            //return '<script>alert("Gọi anh đi em!!! rồi anh dậy cho =)))");</script><div style=" color: red; text-align: center; font-size: 50px; margin-top: 50px; ">Đéo dậy đâu. Ahihi!!!</div>';
+            return '<script>alert("Ngọc ăn cứt =)))");</script><div style=" color: red; text-align: center; font-size: 50px; margin-top: 50px; ">Ngọc ăn cứt!!!</div>';
         //return Viplike::create(['fbid'=>'fbid', 'thoigian'=>'fbid', 'cronlike'=>'fbid','limit'=>'fbid','goi'=>'fbid','thongbao'=>'fbid','camxuc'=>'fbid','active'=>'fbid']);
           //return User::create(['name'=>'hihi', 'email'=>'hihi', 'password'=>'']);
           //auth()->login(User::first());
           //Auth::guard('admin')->login(Admin::first());
          // return dd(Auth::guard('admin')->user());
           //return auth()->login(User::first());
-          return view('home.index');
+         // return view('home.index');
     }
 }

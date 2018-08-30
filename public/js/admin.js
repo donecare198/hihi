@@ -166,7 +166,8 @@ function check_token(){
 function add_token(){
     $('#result-token-live').val('');
     $('#result-token-die').val('');
-    
+    $('#live').html(0);
+    $('#die').html(0);
     var limit = 500;
     var list_token = $('#list-token').val();
     if(list_token.trim() == ''){

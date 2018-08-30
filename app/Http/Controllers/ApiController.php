@@ -45,11 +45,11 @@ VIPID 100006684784400 của bạn đã hết hạn. Vui lòng gia hạn dịch v
             $check = TaskVipLike::where('created_at','>',strtotime(Carbon::today()))->count();
             if($check < 12){
                 $client = new Client(['http_errors' => false]);
-                $res = $client->request('GET', 'https://graph.facebook.com/'.$vid['fbid'].'/feed?fields=id,story,created_time,privacy&limit=12&access_token=EAAAAUaZA8jlABAI7cNLZBQv4rnvvVUR0EIIpPiUDiZCZCxKAJNSe54tVDtzUw3FOvZC9QwF48738DrrQuvbDx5juT8b54LFhiN4nvZC13Nzf1p8aEt93Kz0EpvGjbAbOJItMmSVGdidJTRums9bjkBLASL9K7ZAgORtWZBfuZBxas4QZDZD');
+                $res = $client->request('GET', 'https://graph.facebook.com/'.$vid['fbid'].'/feed?fields=id,story,created_time,privacy&limit=12&access_token=EAAAAUaZA8jlABAMW1acuN8RiSDQQXQzChKP450rKdCCj9Rnm0aKlnFZCOu3ZAPRnaEf8ZCPKhmeaKmvDo7DBMIiDUgHqHCdZBLRz9Y5ZBZAxtwGPxvWo7kKsMPhxphgCr7xJEaRHJE8CyXlcnoAmzbdi9ViGabx8fLegrZBZAW2D9WAZDZD');
                 $stCode = $res->getStatusCode();
                 if (200 === $stCode) {
                     foreach(json_decode($res->getBody(),true)['data'] as $pid){
-                        TaskVipLike::firstOrCreate(['fbid'=>$vid['fbid'], 'postid'=>$pid['id'],'hoanthanh'=>0,'story'=>@$pid['story'],'limit'=>$vid['limit'],'goi'=>$vid['goi'],'reaction'=>$vid['reaction'],'time'=>strtotime($pid['created_time']),'updated_at'=>strtotime(Carbon::now()),'created_at'=>strtotime(Carbon::now())]);
+                        TaskVipLike::firstOrCreate(['fbid'=>$vid['fbid'], 'postid'=>$pid['id'],'hoanthanh'=>0,'story'=>@$pid['story'],'limit'=>$vid['limit'],'goi'=>$vid['goi'],'reaction'=>$vid['reaction'],'time'=>strtotime($pid['created_time']),'updated_at'=>strtotime(Carbon::now()),'created_at'=>strtotime(Carbon::now()),'__v' =>0 ]);
                     }
                 }else {
                   return array('success'=>false,'type'=>'error','message'=>'Có lỗi xảy ra không thể load feed vui lòng thử lại sau !!!','error_code'=>$stCode);
@@ -77,5 +77,8 @@ VIPID 100006684784400 của bạn đã hết hạn. Vui lòng gia hạn dịch v
     function token(){
         $check = Token::select('access_token')->get();
         return $check;
+    }
+    function sendLikes(){
+        
     }
 }

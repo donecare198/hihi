@@ -61,10 +61,21 @@
       </a>
       <ul class="treeview-menu">
         <li><a href="/admin/tach-token"><i class="fa fa-circle-o"></i> Tách Access Token</a></li>
-        <li class=""><a href="/admin/check-token"><i class="fa fa-circle-o"></i> Check Live Token</a></li>
-        <li class=""><a href="/admin/add-token"><i class="fa fa-circle-o"></i> Add Token</a></li>
+        <li class=""><a target="_blank" href="/admin/check-token"><i class="fa fa-circle-o"></i> Check Live Token</a></li>
+        <li class=""><a target="_blank" href="/admin/add-token"><i class="fa fa-circle-o"></i> Add Token</a></li>
         <li class=""><a href="/admin/up-khien"><i class="fa fa-circle-o"></i> Bật khiên Avatar</a></li>
         
+      </ul>
+    </li>
+    <li class="treeview">
+      <a href="#">
+        <i class="fa fa-dashboard"></i> <span>Tools</span>
+        <span class="pull-right-container">
+          <i class="fa fa-angle-left pull-right"></i>
+        </span>
+      </a>
+      <ul class="treeview-menu">
+        <li class=""><a href="/admin/getuidgroup"><i class="fa fa-circle-o"></i> Get UID Thành Viên Group</a></li>        
       </ul>
     </li>
     <!--

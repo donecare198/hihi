@@ -16,6 +16,7 @@ $(document).ajaxStop(function() {
     $('#check_token').prop('disabled',false);
     $('#tong').html($('#list-token').val().split('\n').length);
     $('#check_token').html('Tiến Hành Add Access Token <i class="fa fa-arrow-right"></i>');
+    toastr.success('Đã chạy xong');
 });
 </script>
 @endsection
