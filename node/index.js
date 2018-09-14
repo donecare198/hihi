@@ -17,9 +17,9 @@ var notification = require('./send_messenger.js')
 
 
 mongoose.connect('mongodb://localhost/viplike');
-const model_token = mongoose.model('tokens',new mongoose.Schema({fbid:String,access_token:String,name:String,gender:String,locale:String,avatar:Boolean,live:Number,use:Number,updated_at:String,created_at:String}),'tokens')
-const model_viplike = mongoose.model('viplike',new mongoose.Schema({fbid:String,thoigian:String,limit:String,goi:String,reaction:Array,thongbao:String,fbid_notification:String,active:Number,updated_at:Date,created_at:Date}),'viplike')
-const model_task_viplike = mongoose.model('task_viplike',new mongoose.Schema({fbid:String,postid:String,actionid:String,hoanthanh:Number,loi:String,active:String,story:String,limit:Number,goi:Number,reaction:Array,updated_at:String,created_at:String}),'task_viplike')
+const model_token = mongoose.model('tokens',new mongoose.Schema({fbid:String,access_token:String,name:String,gender:String,locale:String,avatar:Boolean,live:Number,use:Number,message:String,updated_at:String,created_at:String}),'tokens')
+const model_viplike = mongoose.model('viplike',new mongoose.Schema({fbid:String,thoigian:String,limit:String,goi:String,reaction:String,thongbao:String,fbid_notification:String,active:Number,updated_at:Date,created_at:Date}),'viplike')
+const model_task_viplike = mongoose.model('task_viplike',new mongoose.Schema({fbid:String,postid:String,actionid:String,hoanthanh:Number,loi:String,active:Number,story:String,limit:Number,goi:Number,reaction:String,updated_at:String,created_at:String}),'task_viplike')
 const useragent = mongoose.model('useragent',new mongoose.Schema({text:String,sudung:Number,lock:Number}),'useragent')
 
 app.use( bodyParser.json({limit: '50mb'}) );
@@ -33,6 +33,14 @@ app.use(function (req, res, next) {
 });
 
 //
+new CronJob('0 */1 * * * *', function() {
+   LoadPostInFeed();
+}, null, true, 'America/Chicago');
+new CronJob('0 */5 * * * *', function() {
+    request.get('https://likedao.biz/api/sendLikes',function(e, r, b){})
+}, null, true, 'America/Chicago');
+
+
 app.get('/',function(req, res, next){
    res.send('Lực đẹp trai ^^'); 
 });
@@ -52,28 +60,66 @@ app.post('/send-messenger', function(req, res, next) {
     }    
     
 });
+app.get('/getfbid', function(req, res, next) {
+    res.set({ 'content-type': 'application/json; charset=utf-8' });
+    let $this = res;
+    let link = req.query.link;
+    console.log(link)
+    if(link != undefined || link == ''){
+        try{
+            request({
+                headers: {
+                    'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1',
+                },
+                uri: link,
+                method: 'GET'
+                }, function (err, res, body) {
+                    try{
+                        arr = [];
+                        var $ = cheerio.load(body,{ decodeEntities: false });
+                        let x = body.match(/entity_id":([0-9]{0,})/);
+                        let fbid = x[1];
+                        let name = ($("title").text()).replace(/ - Home| \| Facebook|car/gi,'');
+                        $this.send({'success':true,'name':name,'fbid':fbid});
+                    }catch(e){
+                        $this.send({'success':false,'message':'Không thể tìm thấy link fb'});
+                    }
+                }
+            );
+        }catch(e){
+            $this.send({'success':false,'message':'Không thể tìm thấy link fb'});
+        }
+    }else{
+        $this.send({'success':false,'message':'Link không hợp lệ'});
+    }
+});
 app.post('/check-token',function(req, res, next){
     let data = req.body;
     let $this = res;
     let response_token = [];
+    let check = -1;
     let access_token = JSON.parse(data.list);
     if(access_token.length > 0){
         for(i = 0;i <= access_token.length;i++){
             check_token(access_token[i],function(body,token){
-                body = JSON.parse(body);
-                if(body['email']){
-                    check = body['email'].indexOf("@tfbnw.net");
-                }
-                if(body['category']){
-                    check = 1;
-                }
-                if(body['id'] && token != undefined && check == -1){
-                    response_token.push({'access_token' : token,'live':'true'});
-                }else{
-                    response_token.push({'access_token' : token,'live':'false'});
-                }
-                if(response_token.length == access_token.length){
-                    res.send(response_token);
+                try{
+                    body = JSON.parse(body);
+                    if(body['email']){
+                        check = body['email'].indexOf("@tfbnw.net");
+                    }
+                    if(body['category']){
+                        check = 1;
+                    }
+                    if(body['id'] && token != undefined && check == -1){
+                        response_token.push({'access_token' : token,'live':'true'});
+                    }else{
+                        response_token.push({'access_token' : token,'live':'false'});
+                    }
+                    if(response_token.length == access_token.length){
+                        res.send(response_token);
+                    }
+                }catch(e){
+                    console.log(e+'-----');
                 }
             });
         }
@@ -89,35 +135,39 @@ app.post('/add-token',function(req, res, next){
     if(access_token.length > 0){
         for(i = 0;i <= access_token.length;i++){
             check_token(access_token[i],function(body,token){
-                let check = -1;
-                body = JSON.parse(body);
-                if(body['email']){
-                    check = body['email'].indexOf("@tfbnw.net");
-                }
-                if(body['id'] && token != undefined && !body['category'] && check == -1){
-                    request.get('https://graph.facebook.com/'+body['id']+'/picture?redirect=false',function(e, r, b){
-                        try{
-                            model_token.findOne({fbid: body['id']}).then(function(result){
-                                if(result == null){
-                                    b = JSON.parse(b); 
-                                    model_token.create({fbid:body['id'],access_token:token,name:body['name'],gender:body['gender'],locale:body['locale'],avatar:b['data']['is_silhouette'],live:1,use:0,updated_at:Date.now(),created_at:Date.now()},function(){});
-                                }else{
-                                    model_token.findOneAndUpdate({fbid: body['id']}, {$set:{name:body['name'],access_token:token,gender:body['gender'],locale:body['locale'],live:1,updated_at:Date.now()}}, {new: true}, function(err, doc){});
-                                }
-                            }) 
-                        }catch(error){
-                            
-                        }
-                    })
-                    live++;
-                }else{
-                    model_token.remove({access_token:token},function(err,doc){
-                        console.log(doc)
-                    });
-                    die++;
-                }
-                if((parseInt(live)+parseInt(die)) == access_token.length){
-                    res.send({'live':live,'die':die});
+                try{
+                    let check = -1;
+                    body = JSON.parse(body);
+                    if(body['email']){
+                        check = body['email'].indexOf("@tfbnw.net");
+                    }
+                    if(body['id'] && token != undefined && !body['category'] && check == -1){
+                        request.get('https://graph.facebook.com/'+body['id']+'/picture?redirect=false',function(e, r, b){
+                            try{
+                                model_token.findOne({fbid: body['id']}).then(function(result){
+                                    if(result == null){
+                                        b = JSON.parse(b); 
+                                        model_token.create({fbid:body['id'],access_token:token,name:body['name'],gender:body['gender'],locale:body['locale'],avatar:b['data']['is_silhouette'],live:1,use:0,message:'',updated_at:parseInt(Date.now() / 1000),created_at:parseInt(Date.now() / 1000)},function(){});
+                                    }else{
+                                        model_token.findOneAndUpdate({fbid: body['id']}, {$set:{name:body['name'],access_token:token,gender:body['gender'],locale:body['locale'],live:1,message:'',updated_at:parseInt(Date.now() / 1000)}}, {new: true}, function(err, doc){});
+                                    }
+                                }) 
+                            }catch(error){
+                                
+                            }
+                        })
+                        live++;
+                    }else{
+                        model_token.remove({access_token:token},function(err,doc){
+                            console.log(doc)
+                        });
+                        die++;
+                    }
+                    if((parseInt(live)+parseInt(die)) == access_token.length){
+                        res.send({'live':live,'die':die});
+                    }
+                }catch(e){
+                    console.log(e+'-----');
                 }
             });
         }
@@ -185,34 +235,53 @@ function LoadPostInFeed(){
     })
 }
 function getFeed(vipdata){
-    request.get('https://graph.facebook.com/'+vipdata['fbid']+'/feed?fields=id,story,created_time,privacy&limit=12&access_token=EAAAAUaZA8jlABAMW1acuN8RiSDQQXQzChKP450rKdCCj9Rnm0aKlnFZCOu3ZAPRnaEf8ZCPKhmeaKmvDo7DBMIiDUgHqHCdZBLRz9Y5ZBZAxtwGPxvWo7kKsMPhxphgCr7xJEaRHJE8CyXlcnoAmzbdi9ViGabx8fLegrZBZAW2D9WAZDZD',function(error, response, body){
-        body = JSON.parse(body);
-        let j2 = 0;
-        for(j=0;j < body.data.length;++j){
-            let time_post = Date.parse(body['data'][j]['created_time']);
-            let start = now.setHours(0,0,0,0);
-            let arr = [];
-            if(time_post > start){
-                model_task_viplike.findOne({postid: body['data'][j]['id']}).then(function(result2){
-                    if(result2 == null){
-                        arr['feed'] = body['data'][j2];
-                        arr['viplike'] = vipdata;
-                        if(!arr['feed']['story']){
-                            arr['feed']['story'] = '';
+    var x = ()=>{
+        model_token.findOneAndUpdate({live:1},{$set:{updated_at:parseInt(Date.now() / 1000)}}).sort({updated_at: 1}).then(function(result){
+            request.get('https://graph.facebook.com/'+vipdata['fbid']+'/feed?fields=id,story,created_time,privacy&limit=12&access_token='+result['access_token'],function(error, response, body){
+                body = JSON.parse(body);
+                let j2 = 0;
+                if(body.data){
+                    for(j=0;j < body.data.length;++j){
+                        let time_post = Date.parse(body['data'][j]['created_time']);
+                        let start = now.setHours(0,0,0,0);
+                        let arr = [];
+                        if(time_post > start){
+                            model_task_viplike.findOne({postid: body['data'][j]['id']}).then(function(result2){
+                                if(result2 == null){
+                                    arr['feed'] = body['data'][j2];
+                                    arr['viplike'] = vipdata;
+                                    if(!arr['feed']['story']){
+                                        arr['feed']['story'] = '';
+                                    }
+                                    arr['type'] = 1;
+                                    arr['dachay'] = 1;
+                                    model_task_viplike.create({fbid:arr['viplike']['fbid'],postid:arr['feed']['id'],actionid:arr['feed']['id'],hoanthanh:0,loi:0,active:1,story:arr['feed']['story'],limit:arr['viplike']['limit'],goi:(parseInt(arr['viplike']['goi'])*100)+((parseInt(arr['viplike']['goi'])*100)/100*(Math.floor(Math.random() * (20 - 1 + 1)) + 1)),reaction:arr['viplike']['reaction'],updated_at:parseInt(now.getTime() / 1000),created_at:parseInt(now.getTime() / 1000)})
+                                    action_like(arr);
+                                }
+                                j2++;
+                            })
                         }
-                        arr['type'] = 1;
-                        arr['dachay'] = 1;
-                        model_task_viplike.create({fbid:arr['viplike']['fbid'],postid:arr['feed']['id'],actionid:arr['feed']['id'],hoanthanh:0,loi:0,active:1,story:arr['feed']['story'],limit:arr['viplike']['limit'],goi:arr['viplike']['goi'],reaction:arr['viplike']['reaction'],updated_at:now.getTime(),created_at:now.getTime()})
-                        action_like(arr);
                     }
-                    j2++;
-                })
-            }
-        }
-    })
+                }else if(body['error']){
+                    if(body['error']['message'].indexOf('Error validating access token: The user is enrolled in a blocking, logged-in checkpoint') != -1){
+                        model_token.findOneAndUpdate({_id:result['id']}, {$set:{live:0,message:body['error']['message']}}, {new: true}, function(err, doc){});
+                        x();
+                    }else if(body['error']['message'].indexOf('does not exist') != -1){
+                        model_task_viplike.findOneAndUpdate({postid:data['feed']['id']},{$set:{active:0}}).then(function(result){});
+                    }else if(body['error']['message'].indexOf('(#200) Permissions error') != -1){
+                        x();
+                    }else if(body['error']['message'].indexOf('The action attempted has been deemed') != -1){
+                        model_token.findOneAndUpdate({_id:result['id']}, {$set:{live:3,message:body['error']['message'],updated_at:parseInt(Date.now() / 1000)}}, {new: true}, function(err, doc){});
+                        x();
+                    }
+                }
+            })
+        })
+    }
+    x();
 }
 function action_like(data){
-    model_token.findOneAndUpdate({live:1},{$set:{updated_at:Date.now()}}).sort({updated_at: 1}).then(function(result){
+    model_token.findOneAndUpdate({live:1},{$set:{updated_at:parseInt(Date.now() / 1000)}}).sort({updated_at: 1}).then(function(result){
         var newid = '';
         if(result != null){
             if(data['type'] == 1){
@@ -241,7 +310,7 @@ function action_like(data){
                 }else if(body['error']){
                     if(body['error']['message'].indexOf('Error validating access token: The user is enrolled in a blocking, logged-in checkpoint') != -1){
                         //model_token.remove({_id:result['id']},function(err,doc){});
-                        model_token.findOneAndUpdate({_id:result['id']}, {$set:{live:0}}, {new: true}, function(err, doc){});
+                        model_token.findOneAndUpdate({_id:result['id']}, {$set:{live:0,message:body['error']['message']}}, {new: true}, function(err, doc){});
                         console.log('token die')
                         action_like(data);
                     }else if(body['error']['message'].indexOf('does not exist') != -1){
@@ -259,7 +328,7 @@ function action_like(data){
                             action_like(data);
                         }
                     }else if(body['error']['message'].indexOf('The action attempted has been deemed') != -1){
-                        model_token.findOneAndUpdate({_id:result['id']}, {$set:{live:3,updated_at:Date.now()}}, {new: true}, function(err, doc){});
+                        model_token.findOneAndUpdate({_id:result['id']}, {$set:{live:3,message:body['error']['message'],updated_at:parseInt(Date.now() / 1000)}}, {new: true}, function(err, doc){});
                         if(data['type'] == 1){
                             data['type'] = data['type'] + 1;
                             action_like(data);

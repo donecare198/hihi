@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Token;
+use App\Viplike;
+use App\TaskVipLike;
+use App\LogLikes;
 
 class HomeController extends Controller
 {
@@ -13,7 +17,11 @@ class HomeController extends Controller
         $this->middleware('admin');
     }
     function index(){
-        return view('admin.index');
+        $data['token'] = Token::where('live',1)->count();
+        $data['viplike'] = Viplike::where('active',1)->count();
+        $data['task'] = TaskVipLike::where(['active'=>1,'loi'=>'0'])->count();
+        $data['log_like'] = LogLikes::count();
+        return view('admin.index')->with('data',$data);
     }
     function addUserAgent(){
         $agent = file_get_contents('/var/www/viplike/database/seeds/useragent.txt');

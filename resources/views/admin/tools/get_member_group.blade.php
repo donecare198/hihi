@@ -11,7 +11,7 @@
     </div>
     <div class="form-group">
         <div class="">
-            <span>Đã Quét:</span><span id="daquet" style="color: red;">0</span>
+            <span>View File:</span><span id="daquet" style="color: red;">0</span>
         </div>
         <button class="btn btn-danger" id="btn-loc" onclick="load()">Bắt đầu lọc</button>
     </div>
@@ -21,7 +21,23 @@
 </div>
 <script>
 $(document).ready(()=>{
-    
+    toastr.options = {
+      "closeButton": true,
+      "debug": true,
+      "newestOnTop": true,
+      "progressBar": true,
+      "positionClass": "toast-top-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "0",
+      "timeOut": "0",
+      "extendedTimeOut": "0",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    }
 })
 
 $(document).ajaxStop(function() {
@@ -31,23 +47,21 @@ $(document).ajaxStop(function() {
 function load(url = ''){
     $('#btn-loc').html('<i class="fa fa-refresh fa-spin" style="font-size:24px;padding: 0 50px;"></i>');
     var groupid = $('#groupid').val();
-    var token = $('#token').val();
+    var access_token = $('#token').val();
     if(groupid == '' || token == ''){
         toastr.warning('Xin vui lòng nhập đầy đủ thông tin');
         $('#btn-loc').html('Bắt đầu lọc');
         return false;
     }
+    $('#daquet').html('<a href="https://likedao.biz/member_group/'+groupid+'.txt" target="_blank">'+groupid+'.txt</a>');
     if(url == ''){
-        url = 'https://graph.facebook.com/'+groupid+'/members?access_token='+token+'&limit=1000&field=id';
+        var url = 'https://graph.facebook.com/'+groupid+'/members?access_token='+access_token+'&limit=1000'
     }
+    $.post('https://likedao.biz/getMember',{groupid:groupid,url:url,_token:token});
     $.getJSON(url)
     .done((data)=>{
-        $('#daquet').html(parseInt($('#daquet').html()) + parseInt((data.data).length))
-        $.each(data.data,(k,v)=>{
-            $('#result').append(v.id+'\n')
-        })
         if(data.paging.next){
-            load(data.paging.next);
+           load(data.paging.next);
         }
     })
 }

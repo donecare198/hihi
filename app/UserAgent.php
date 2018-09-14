@@ -4,9 +4,9 @@ namespace App;
 
 use Moloquent;
 
-class TaskVipLike extends Moloquent
+class UserAgent extends Moloquent
 {
-    protected $collection = 'task_viplike';
+    protected $collection = 'useragent';
 
     /**
      * The attributes that are mass assignable.
@@ -14,12 +14,13 @@ class TaskVipLike extends Moloquent
      * @var array
      */
     protected $fillable = [
-        'reaction', 'fbid', 'postid', 'actionid', 'hoanthanh','story','limit', 'loi', 'active','goi','updated_at','created_at','__v'
-    ]; 
+        'text', 'sudung','lock'
+    ];
+
     /**
      * The attributes that should be hidden for arrays.
      *
      * @var array
      */
-     public $timestamps = true;
+     public $timestamps = false;
 }

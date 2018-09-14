@@ -4,11 +4,16 @@ namespace App\Http\Controllers;
 
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client as Client;
+use GuzzleHttp\Pool;
+use GuzzleHttp\Psr7\Request as Request2;
+use DB;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\TaskVipLike;
 use App\Viplike;
 use App\Token;
+use App\UserAgent;
+use App\LogLikes;
 
 class ApiController extends Controller
 {
@@ -38,27 +43,8 @@ VIPID 100006684784400 của bạn đã hết hạn. Vui lòng gia hạn dịch v
             }
         
     }
-    function LoadPostInFeed(){
-        $vipid = Viplike::where('active',1)->orderBy('updated_ad','asc')->limit(5)->get();
-        
-        foreach($vipid as $vid){
-            $check = TaskVipLike::where('created_at','>',strtotime(Carbon::today()))->count();
-            if($check < 12){
-                $client = new Client(['http_errors' => false]);
-                $res = $client->request('GET', 'https://graph.facebook.com/'.$vid['fbid'].'/feed?fields=id,story,created_time,privacy&limit=12&access_token=EAAAAUaZA8jlABAMW1acuN8RiSDQQXQzChKP450rKdCCj9Rnm0aKlnFZCOu3ZAPRnaEf8ZCPKhmeaKmvDo7DBMIiDUgHqHCdZBLRz9Y5ZBZAxtwGPxvWo7kKsMPhxphgCr7xJEaRHJE8CyXlcnoAmzbdi9ViGabx8fLegrZBZAW2D9WAZDZD');
-                $stCode = $res->getStatusCode();
-                if (200 === $stCode) {
-                    foreach(json_decode($res->getBody(),true)['data'] as $pid){
-                        TaskVipLike::firstOrCreate(['fbid'=>$vid['fbid'], 'postid'=>$pid['id'],'hoanthanh'=>0,'story'=>@$pid['story'],'limit'=>$vid['limit'],'goi'=>$vid['goi'],'reaction'=>$vid['reaction'],'time'=>strtotime($pid['created_time']),'updated_at'=>strtotime(Carbon::now()),'created_at'=>strtotime(Carbon::now()),'__v' =>0 ]);
-                    }
-                }else {
-                  return array('success'=>false,'type'=>'error','message'=>'Có lỗi xảy ra không thể load feed vui lòng thử lại sau !!!','error_code'=>$stCode);
-                }
-            }
-        }
-    }
     function Likes(){
-        $check = Token::select(['access_token'])->get();
+        $check = Token::where('live',1)->select(['access_token'])->get();
         foreach($check as $c){
             echo $c['access_token'].'<br />';
         }
@@ -74,11 +60,81 @@ VIPID 100006684784400 của bạn đã hết hạn. Vui lòng gia hạn dịch v
             echo $res->getBody();
         }
     }
-    function token(){
-        $check = Token::select('access_token')->get();
-        return $check;
-    }
+    
     function sendLikes(){
+        $run = function($data,$logIn){
+            $success = 0;
+            $error = 0;
+            $log_likes = [];
+            if((int)$data->hoanthanh >= (int)$data->goi){
+                TaskVipLike::where('_id',$data->_id)->update(['active'=>0]);
+                return false;
+            }else if(((int)$data->goi - (int)$data->hoanthanh) > $data->limit){
+                $limit = $data->limit;
+            }else{
+                $limit = (int)$data->goi - (int)$data->hoanthanh;
+            }
+            
+            $token = Token::where('live',1)->whereNotIn('fbid',$logIn)->orderBy('updated_at','asc')->limit($limit)->lockForUpdate()->get();
+            if(sizeof($token) > 0){
+                foreach($token as $t){
+                    $t->updated_at = Carbon::now();
+                    $t->increment('use',1);
+                    $t->save();
+                    $type = json_decode($data->reaction,true)[array_rand(json_decode($data->reaction,true),1)];
+                    $token_id[] = array($t->_id,$t->fbid,$type);
+                    $links[] = 'https://graph.facebook.com/'.$data->actionid.'/reactions?type='.$type.'&access_token='.$t->access_token;
+                }
+                $client = new Client();
+                foreach ($links as $key=>$link) {
+                    $requests[] = new Request2('POST', $link,['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36']);
+                }
+            
+                $responses = Pool::batch($client, $requests, array(
+                    'concurrency' => 50,
+                    'fulfilled' => function ($response, $index) use (&$data,&$token_id,&$success,&$error,&$log_likes) {
+                        //echo $response->getBody();
+                        $log_likes[] = array('fbid'=>$token_id[$index]['1'], 'actionid'=>$data->actionid, 'type'=>$token_id[$index]['2'],'updated_at'=>Carbon::now(),'created_at'=>Carbon::now());
+                        $success++;
+                    },
+                    'rejected' => function ($reason, $index) use (&$data,&$token_id,&$success,&$error) {
+                        //echo $reason->getResponse()->getBody(true).'<br />';
+                        if(strpos($reason->getResponse()->getBody(true),'does not exist')){
+                            TaskVipLike::where('_id',$data->_id)->update(['loi'=>1]);
+                        }else if(strpos($reason->getResponse()->getBody(true),'The action attempted has been deemed')){
+                            Token::where('_id',$token_id[$index]['0'])->update(['live'=>3]);
+                        }else if(strpos($reason->getResponse()->getBody(true),'Error validating access token: The user is enrolled in a blocking, logged-in checkpoint')){
+                            Token::where('_id',$token_id[$index]['0'])->update(['live'=>0]);
+                        } 
+                        $error++;
+                        // this is delivered each failed request
+                    },
         
+                ));
+                LogLikes::insert($log_likes);
+                TaskVipLike::where('_id',$data->_id)->increment('hoanthanh',$success);
+                var_dump(['success'=>$success,'error'=>$error]).'<br />';
+            }
+        };
+            
+        $task = TaskVipLike::where(['active'=>1,'loi'=>'0'])->orderBy('updated_at','asc')->lockForUpdate()->get();
+        foreach($task as $t){
+            $t->updated_at = Carbon::now();
+            $t->save();
+            $logIn = array();
+            $log = LogLikes::select('fbid')->where('actionid',$t->actionid)->get();
+            if(sizeof($log) > 0){
+                foreach($log as $l){
+                    $logIn[] = $l->fbid;
+                }
+            }
+            $run($t,$logIn);
+        }
+    }
+    function getUserAgent(){
+        $useragent = UserAgent::orderBy('use','asc')->limit(1)->lockForUpdate()->first();
+        $useragent->use = $useragent->use + 1;
+        $useragent->save();
+        return $useragent->text;
     }
 }

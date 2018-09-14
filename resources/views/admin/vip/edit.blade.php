@@ -44,15 +44,16 @@
                 <label class="col-md-2 control-label">Gói cảm xúc</label>
                 <div class="col-md-10">
                     <select id="goi" class="form-control">
-                        <option value="1" {{$data->goi == 1 ? "selected" : ""}} >100 ~ 120 CX</option>
-                        <option value="2" {{$data->goi == 2 ? "selected" : ""}} >150 ~ 180 CX</option>
-                        <option value="3" {{$data->goi == 3 ? "selected" : ""}} >200 ~ 240 CX</option>
-                        <option value="4" {{$data->goi == 4 ? "selected" : ""}} >300 ~ 360 CX</option>
-                        <option value="5" {{$data->goi == 5 ? "selected" : ""}} >400 ~ 480 CX</option>
-                        <option value="6" {{$data->goi == 6 ? "selected" : ""}} >500 ~ 600 CX</option>
-                        <option value="7" {{$data->goi == 7 ? "selected" : ""}} >600 ~ 720 CX</option>
-                        <option value="8" {{$data->goi == 8 ? "selected" : ""}} >700 ~ 840 CX</option>
-                        <option value="9" {{$data->goi == 9 ? "selected" : ""}} >800 ~ 960 CX</option>
+                        <option value="1" {{$data->goi == 1 ? "selected" : ""}} >100 CX</option>
+                        <option value="2" {{$data->goi == 2 ? "selected" : ""}} >200 CX</option>
+                        <option value="3" {{$data->goi == 3 ? "selected" : ""}} >300 CX</option>
+                        <option value="4" {{$data->goi == 4 ? "selected" : ""}} >400 CX</option>
+                        <option value="5" {{$data->goi == 5 ? "selected" : ""}} >500 CX</option>
+                        <option value="6" {{$data->goi == 6 ? "selected" : ""}} >600 CX</option>
+                        <option value="7" {{$data->goi == 7 ? "selected" : ""}} >700 CX</option>
+                        <option value="8" {{$data->goi == 8 ? "selected" : ""}} >800 CX</option>
+                        <option value="9" {{$data->goi == 9 ? "selected" : ""}} >900 CX</option>
+                        <option value="10" {{$data->goi == 10 ? "selected" : ""}} >1000 CX</option>
                     </select>
                 </div>
             </div>

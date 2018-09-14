@@ -43,15 +43,16 @@
                 <label class="col-md-2 control-label">Gói cảm xúc</label>
                 <div class="col-md-10">
                     <select id="goi" class="form-control">
-                        <option value="1">100 ~ 120 CX</option>
-                        <option value="2">150 ~ 180 CX</option>
-                        <option value="3">200 ~ 240 CX</option>
-                        <option value="4">300 ~ 360 CX</option>
-                        <option value="5">400 ~ 480 CX</option>
-                        <option value="6">500 ~ 600 CX</option>
-                        <option value="7">600 ~ 720 CX</option>
-                        <option value="8">700 ~ 840 CX</option>
-                        <option value="9">800 ~ 960 CX</option>
+                        <option value="1">100 CX</option>
+                        <option value="2">200 CX</option>
+                        <option value="3">300 CX</option>
+                        <option value="4">400 CX</option>
+                        <option value="5">500 CX</option>
+                        <option value="6">600 CX</option>
+                        <option value="7">700 CX</option>
+                        <option value="8">800 CX</option>
+                        <option value="9">900 CX</option>
+                        <option value="10">1000 CX</option>
                     </select>
                 </div>
             </div>
@@ -92,7 +93,7 @@
                 <tr>
                     <th>STT</th>
                     <th>FBID</th>
-                    <th>Cảm Xúc</th>
+                    <th>Gói</th>
                     <th>Thời Gian</th>
                     <th>Ngày Thêm</th>
                     <th>Ngày Hết Hạn</th>
@@ -106,11 +107,7 @@
                         <td style="text-align: center;">{{$key+1}}</td>
                         <td data-id="{{$d->_id}}">{{$d->fbid}}</td>
                         <td>
-                            @foreach(json_decode($d->reaction) as $cx)
-                                <div class="icon_reaction active">
-                                    <img src="{{url('images/'.strtolower($cx).'.gif')}}" data-type="{{$cx}}" alt="{{$cx}}" title="{{$cx}}" />
-                                </div>
-                            @endforeach
+                            {{$d->goi * 100}} CX
                         </td>
                         <td>{{$d->thoigian}} Tháng</td>
                         <td>{{ Carbon\Carbon::parse($d->created_at)->format('d-m-Y') }}</td>
@@ -124,7 +121,7 @@
                         <td>
                             <a href="" class="btn btn-warning">Tạm Dừng</a>
                             <a href="/admin/viplike/{{$d->id}}" class="btn btn-success">Sửa</a>
-                            <a href="" class="btn btn-danger">Xóa</a>
+                            <a href="javascript:void(0)" onclick="delete_vipid({{$d->fbid}},'{{$d->_id}}')" class="btn btn-danger">Xóa</a>
                         </td>
                     </tr>
                 @endforeach
@@ -132,4 +129,19 @@
         </table>            
     </div>
 </div>
+<script>
+function delete_vipid(uid,id){
+    var x = confirm('Bạn có chắc chắn muốn xóa vipid '+uid+' khỏi hệ thống không?')
+    if(x == true){
+        $.post('/admin/viplike/delete',{id:id})
+        .dont((data)=>{
+            
+        }).fail((data)=>{
+            
+        })
+    }else{
+        return false;
+    }
+}
+</script>
 @endsection

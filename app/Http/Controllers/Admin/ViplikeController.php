@@ -28,7 +28,7 @@ class ViplikeController extends Controller
             $formData,
             [
                 'fbid' => 'required|numeric',
-                'limit' => 'required|min:50|max:1000|numeric',
+                'limit' => 'required|min:5|max:1000|numeric',
                 'thoigian' => 'min:1|max:12|numeric',
                 'reaction' => 'required|array|min:1',
             ],

@@ -14,7 +14,7 @@ class Token extends Moloquent
      * @var array
      */
     protected $fillable = [
-        'fbid', 'access_token','name','gender','locale','updated_at','avatar','created_at'
+        'fbid', 'access_token','name','gender','locale','useragent','updated_at','avatar','created_at'
     ];
 
     /**

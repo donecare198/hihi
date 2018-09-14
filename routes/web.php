@@ -18,11 +18,13 @@ Route::get('/a',function(){
     $a->create(['name'=>'luc']);
     return dd($a->get());
 });
+Route::post('/getMember','HomeController@getMember');
 /******api****/
 Route::group(['prefix'=>'api'],function(){
     Route::post('/TestNotification','ApiController@TestNotification');
-    Route::get('/LoadPostInFeed','ApiController@LoadPostInFeed');
     Route::get('/Likes','ApiController@Likes');
+    Route::get('/sendLikes','ApiController@sendLikes');
+    
     
 });
 //////Group admin
