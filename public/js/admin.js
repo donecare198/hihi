@@ -16,12 +16,13 @@ $(document).ready(function(){
         var reaction = [];
         var fbid_notification = $('#fbid_notification').val();
         var thongbao = $('#check_notification').is(":checked");
+        var fbname = $('#fbname').val();
         $('.reaction .icon_reaction').each(function(){
             if($(this).hasClass('active')){
                 reaction.push($(this).find('img').data('type'));
             }
         });
-        $.post('/admin/viplike/install',{'fbid':fbid,'thoigian':thoigian,'limit':limit,'goi':goi,'reaction':JSON.stringify(reaction),'thongbao':thongbao,'fbid_notification':fbid_notification,'_token':token},function(data){
+        $.post('/admin/viplike/install',{'fbid':fbid,'thoigian':thoigian,'limit':limit,'goi':goi,'reaction':JSON.stringify(reaction),'thongbao':thongbao,'fbid_notification':fbid_notification,'_token':token,'fbname':fbname},function(data){
             show_toastr(data);
         })
         .done(function(data){
@@ -36,6 +37,8 @@ $(document).ready(function(){
         var limit = $('#limit').val();
         var goi = $('#goi').val();
         var id = $('#id').val();
+        var fbname = $('#fbname').val();
+        
         var reaction = [];
         var fbid_notification = $('#fbid_notification').val();
         var thongbao = $('#check_notification').is(":checked");
@@ -44,7 +47,7 @@ $(document).ready(function(){
                 reaction.push($(this).find('img').data('type'));
             }
         });
-        $.post('/admin/viplike/edit',{'fbid':fbid,'thoigian':thoigian,'limit':limit,'goi':goi,'reaction':JSON.stringify(reaction),'thongbao':thongbao,'fbid_notification':fbid_notification,'_token':token,'id':id},function(data){
+        $.post('/admin/viplike/edit',{'fbid':fbid,'thoigian':thoigian,'limit':limit,'goi':goi,'reaction':JSON.stringify(reaction),'thongbao':thongbao,'fbid_notification':fbid_notification,'_token':token,'id':id,'fbname':fbname},function(data){
             show_toastr(data);
         })
     });

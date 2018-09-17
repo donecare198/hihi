@@ -14,7 +14,7 @@ class Viplike extends Moloquent
      * @var array
      */
     protected $fillable = [
-        'fbid', 'thoigian','limit','goi','thongbao','reaction','active','fbid_notification','updated_at'
+        'fbid', 'thoigian','limit','goi','thongbao','reaction','active','fbid_notification','updated_at','fbname'
     ];
 
     /**

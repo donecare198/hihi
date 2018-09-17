@@ -6,6 +6,7 @@ use Validator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Viplike;
+use App\Token;
 use Carbon\Carbon;
 class ViplikeController extends Controller
 {
@@ -59,8 +60,6 @@ class ViplikeController extends Controller
         if($create){
             return Response()->json(['success'=>true,'type'=>'success','message'=>'Thêm thành công!!!','action'=>'location.reload();']);
         }
-
-        
     }
     function loadEdit($id){
         $data = Viplike::where('_id',$id)->first();
@@ -86,5 +85,13 @@ class ViplikeController extends Controller
         $vipid->fill(['updated_at'=>Carbon::now()])->save();
         
         return Response()->json(['success'=>true,'type'=>'success','message'=>'Lưu thành công!!!']); 
+    }
+    function delete(Request $request){
+        $vip = Viplike::where('_id',$request->id)->first();
+        if($vip->delete() == true){
+            return Response()->json(['success'=>true,'type'=>'success','message'=>'Xóa thành công!!!','action'=>'alert("Xóa thành công !!!");location.reload();'],200);
+        }else{
+            return Response()->json(['success'=>false,'type'=>'error','message'=>'Có lỗi xảy ra không thể xóa!!!'],404);
+        }
     }
 }

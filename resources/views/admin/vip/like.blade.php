@@ -9,6 +9,10 @@
                 <div class="col-md-10"><input type="text" id="fbid" class="form-control" /></div>
             </div>
             <div class="form-group">
+                <label class="col-md-2 control-label">FB Name</label>
+                <div class="col-md-10"><input type="text" id="fbname" class="form-control" /></div>
+            </div>
+            <div class="form-group">
                 <label class="col-md-2 control-label">Thời gian</label>
                 <div class="col-md-10">
                     <select id="thoigian" class="form-control">
@@ -92,7 +96,7 @@
             <thead>
                 <tr>
                     <th>STT</th>
-                    <th>FBID</th>
+                    <th>FBID - FB Name</th>
                     <th>Gói</th>
                     <th>Thời Gian</th>
                     <th>Ngày Thêm</th>
@@ -105,7 +109,7 @@
                 @foreach($data as $key=>$d)
                     <tr>
                         <td style="text-align: center;">{{$key+1}}</td>
-                        <td data-id="{{$d->_id}}">{{$d->fbid}}</td>
+                        <td data-id="{{$d->_id}}"><a href="https://fb.com/{{$d->fbid}}" target="_blank">{{$d->fbid}}</a> - {{$d->fbname}}</td>
                         <td>
                             {{$d->goi * 100}} CX
                         </td>
@@ -119,7 +123,6 @@
                             @endif
                         </td>
                         <td>
-                            <a href="" class="btn btn-warning">Tạm Dừng</a>
                             <a href="/admin/viplike/{{$d->id}}" class="btn btn-success">Sửa</a>
                             <a href="javascript:void(0)" onclick="delete_vipid({{$d->fbid}},'{{$d->_id}}')" class="btn btn-danger">Xóa</a>
                         </td>
@@ -129,19 +132,36 @@
         </table>            
     </div>
 </div>
-<script>
+<script type="text/javascript">
 function delete_vipid(uid,id){
     var x = confirm('Bạn có chắc chắn muốn xóa vipid '+uid+' khỏi hệ thống không?')
     if(x == true){
-        $.post('/admin/viplike/delete',{id:id})
-        .dont((data)=>{
-            
-        }).fail((data)=>{
-            
+        $.post('/admin/viplike/delete',{id:id,_token:token})
+        .done((data)=>{
+            show_toastr(data);
+            eval(data.action);
+        })
+        .fail((data)=>{
+            show_toastr(data);
         })
     }else{
         return false;
     }
 }
+$(document).on('change','#fbid',function(){
+    $('#fbname').val('loading...');
+    var url = $(this).val();
+    if(url.indexOf('https://www.facebook.com/') == -1){
+        url = 'https://www.facebook.com/'+url;
+    }
+    $.get('https://api.likedao.biz/getfbid?link='+url,function(data){
+        if(data.success == true){
+            $('#fbid').val(data.fbid);
+            $('#fbname').val(data.name);
+        }else{
+            toastr.error(data.message);            
+        }
+    })
+});
 </script>
 @endsection

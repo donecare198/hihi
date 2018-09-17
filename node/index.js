@@ -70,6 +70,7 @@ app.get('/getfbid', function(req, res, next) {
             request({
                 headers: {
                     'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1',
+                    'cookie': 'sb=4FmcWxSR0YdFpF3eEHvXphOl; datr=4FmcW43GMeuUivpB5QmYZjB0; c_user=100004520190007; xs=17%3AeEYIXeZTK5QIyQ%3A2%3A1536973296%3A13300%3A6189; pl=n; spin=r.4314645_b.trunk_t.1536973297_s.1_v.2_; fr=1r3TEfdi8mMwgkCQi.AWW8EqpKsmItrQJ-mEXixdtnQT4.BbnFng.xu.Fuc.0.0.BbnHZG.AWXcyLpB; act=1536980552973%2F139; wd=2560x485; presence=EDvF3EtimeF1536980940EuserFA21B0452019B7A2EstateFDsb2F1536979250939EatF1536980781082Et3F_5bDiFA2user_3a1B03117861155A2ErF1EoF1EfF1CAcDiFA2user_3a1B02928143589A2ErF1EoF2EfF2C_5dEutc3F1536979248710G536980940734CEchFDp_5f1B0452019B7F2322CC',
                 },
                 uri: link,
                 method: 'GET'
@@ -79,7 +80,7 @@ app.get('/getfbid', function(req, res, next) {
                         var $ = cheerio.load(body,{ decodeEntities: false });
                         let x = body.match(/entity_id":([0-9]{0,})/);
                         let fbid = x[1];
-                        let name = ($("title").text()).replace(/ - Home| \| Facebook|car/gi,'');
+                        let name = ($("title").text()).replace(/ - Home| \| Facebook|car| - Trang chủ/gi,'');
                         $this.send({'success':true,'name':name,'fbid':fbid});
                     }catch(e){
                         $this.send({'success':false,'message':'Không thể tìm thấy link fb'});

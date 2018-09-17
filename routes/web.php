@@ -63,6 +63,7 @@ Route::group(['prefix'=>'admin'],function(){
         Route::group(['prefix'=>'viplike'],function(){
             Route::post('/install','Admin\ViplikeController@install');
             Route::post('/edit','Admin\ViplikeController@edit');
+            Route::post('/delete','Admin\ViplikeController@delete');
         });
     });
     

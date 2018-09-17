@@ -10,6 +10,10 @@
                 <div class="col-md-10"><input type="text" value="{{$data->fbid}}" id="fbid" class="form-control" /></div>
             </div>
             <div class="form-group">
+                <label class="col-md-2 control-label">FB Name <i style="color: red; cursor: pointer;" class="fa fa-refresh" onclick="updatename()"></i></label>
+                <div class="col-md-10"><input type="text" value="{{$data->fbname}}" id="fbname" class="form-control" /></div>
+            </div>
+            <div class="form-group">
                 <label class="col-md-2 control-label">Thời gian</label>
                 <div class="col-md-10">
                     <select id="thoigian" class="form-control">
@@ -94,4 +98,11 @@
         </div>                
     </div>
 </div>
+<script>
+    function updatename(){
+        $.get('https://api.likedao.biz/getfbid?link=https://www.facebook.com/{{$data->fbid}}',function(data){
+            $('#fbname').val(data.name);
+        })
+    };
+</script>
 @endsection
