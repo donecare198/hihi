@@ -19,7 +19,7 @@ class HomeController extends Controller
           //Auth::guard('admin')->login(Admin::first());
          // return dd(Auth::guard('admin')->user());
           //return auth()->login(User::first());
-         return view('wow.index');
+         //return view('wow.index');
     }
     function getMember(Request $request){
         $this->getuid($request->url,$request->groupid);

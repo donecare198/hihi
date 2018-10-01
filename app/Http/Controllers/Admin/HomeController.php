@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Schema;
 use App\Token;
 use App\Viplike;
 use App\TaskVipLike;
@@ -19,7 +20,7 @@ class HomeController extends Controller
     function index(){
         $data['token'] = Token::where('live',1)->count();
         $data['viplike'] = Viplike::where('active',1)->count();
-        $data['task'] = TaskVipLike::where(['active'=>1,'loi'=>'0'])->count();
+        $data['task'] = TaskVipLike::where(['active'=>1,'loi'=>0])->count();
         $data['log_like'] = LogLikes::count();
         return view('admin.index')->with('data',$data);
     }
@@ -43,5 +44,23 @@ class HomeController extends Controller
     function getUserAgent(){
         $result = DB::collection('useragent')->orderBy('sudung',1)->lockForUpdate()->first();
         return DB::collection('useragent')->where('_id',$result['_id'])->update(['sudung'=>$result['sudung'] + 1]);
+    }
+    function install_setting(){
+        if(!Schema::hasTable('setting_w')){
+            $db = DB::collection('setting_w')->insert([
+            'member_like' => 50,
+            'time_member_like' => 100,
+            'vip_like' => 200,
+            'time_vip_like' => 50,
+            'member_follow' => 20,
+            'time_member_follow' => 20,
+            'vip_follow' => 20,
+            'time_vip_follow' => 20,
+            'type' => 'auto_config'
+        ]);
+            return ['message'=>'Lực đẹp trai!!!!'];
+        }else{
+            return ['message'=>'Lực đẹp trai!!!!'];
+        }
     }
 }

@@ -4,9 +4,37 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "2a7c55f025fe14f05bfdc152c36deb25",
-    "content-hash": "534bda5ec2aa7c352d84e573650dd273",
+    "hash": "8158c895607b086c4a20245c16c0ff0c",
+    "content-hash": "cf386ef5cb3172d5552dc6b2d0e0d58a",
     "packages": [
+        {
+            "name": "abeautifulsite/simple-php-captcha",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/claviska/simple-php-captcha.git",
+                "reference": "673e5e98487699a4be6a1640dde63321ebe7e490"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/claviska/simple-php-captcha/zipball/673e5e98487699a4be6a1640dde63321ebe7e490",
+                "reference": "673e5e98487699a4be6a1640dde63321ebe7e490",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "simple-php-captcha.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A simple PHP CAPTCHA script",
+            "homepage": "http://www.abeautifulsite.net/",
+            "time": "2017-06-27 14:09:32"
+        },
         {
             "name": "dnoegel/php-xdg-base-dir",
             "version": "0.1",

@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class MenuAdminTable extends Seeder
+class SeederWowLike extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,5 +11,6 @@ class MenuAdminTable extends Seeder
      */
     public function run()
     {
+        //
     }
 }

@@ -5,18 +5,19 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 //use Illuminate\Foundation\Auth\User as Authenticatable;
 use Jenssegers\Mongodb\Auth\User as Authenticatable;
-class User extends Authenticatable
+class Home extends Authenticatable
 {
     use Notifiable;
 
     /**
+     * User wow-like
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $collection = 'user';
     protected $fillable = [
-        'fbid', 'access_token','name','gender','locale','updated_at','created_at'
+        'fbid', 'name','money','roles'
     ];
 
     /**
@@ -25,7 +26,7 @@ class User extends Authenticatable
      * @var array
      */
      public $timestamps = true;
-//    protected $hidden = [
-//        'password', 'remember_token',
-//    ];
+    protected $hidden = [
+        'remember_token','updated_at'
+    ];
 }

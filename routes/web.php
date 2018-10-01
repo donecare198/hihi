@@ -12,20 +12,44 @@
 */
 use App\Http\Middleware\admin;
 
-Route::get('/', "HomeController@index");
-Route::get('/a',function(){
-    $a = new \App\test;
-    $a->create(['name'=>'luc']);
-    return dd($a->get());
+Route::get('/', "wow\HomeController@index");
+
+
+Route::get('/buyfollow', "wow\HomeController@buyfollow");
+Route::get('/auto', "wow\HomeController@auto");
+Route::any('/gettoken', "wow\HomeController@getToken");
+
+Route::group(['middleware' => 'authHome'],function(){
+    Route::get('/login', function(){
+        return redirect('/likes');
+    });
+    Route::get('/exchange', "wow\HomeController@exchange");
+    Route::get('/reactions', "wow\HomeController@reactions");
+    Route::post('/reactions', "wow\ActionController@reactions");
+    Route::get('/follows', "wow\HomeController@follow");
+    Route::post('/follows', "wow\ActionController@follow");
+    Route::get('/likes', "wow\HomeController@likes");
+    Route::post('/likes', "wow\ActionController@likes");
+    Route::get('/topup', "wow\HomeController@topup");
 });
+
+
+Route::get('/captcha', "CaptchaController@getCaptcha");
+Route::post('/login', "wow\HomeController@login");
+Route::get('/logout', "wow\HomeController@logout");
+
+
+
+
+
 Route::post('/getMember','HomeController@getMember');
 /******api****/
 Route::group(['prefix'=>'api'],function(){
     Route::post('/TestNotification','ApiController@TestNotification');
     Route::get('/Likes','ApiController@Likes');
     Route::get('/sendLikes','ApiController@sendLikes');
-    
-    
+    Route::get('/getTaskVipLike','ApiController@getTaskVipLike');
+    Route::get('/getPostId','ApiController@getPostId');  
 });
 //////Group admin
 Route::group(['prefix'=>'admin'],function(){
@@ -34,6 +58,7 @@ Route::group(['prefix'=>'admin'],function(){
         Route::get('/','Admin\HomeController@index');
         Route::get('/adduseragent','Admin\HomeController@addUserAgent');
         Route::get('/getuseragent','Admin\HomeController@getUserAgent');
+        Route::get('/install_setting','Admin\HomeController@install_setting');
         
         Route::any('/logout','Admin\LoginController@logout');
         Route::get('/tach-token',function(){

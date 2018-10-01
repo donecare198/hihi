@@ -32,17 +32,17 @@ app.use(function (req, res, next) {
     next();
 });
 
-//
-new CronJob('0 */1 * * * *', function() {
-   LoadPostInFeed();
+
+new CronJob('0 */5 * * * *', function() {
+   request.get('https://likedao.biz/api/getTaskVipLike',function(e, r, b){})
 }, null, true, 'America/Chicago');
 new CronJob('0 */5 * * * *', function() {
-    request.get('https://likedao.biz/api/sendLikes',function(e, r, b){})
+   request.get('https://likedao.biz/api/sendLikes',function(e, r, b){})
 }, null, true, 'America/Chicago');
 
-
 app.get('/',function(req, res, next){
-   res.send('Lực đẹp trai ^^'); 
+   LoadPostInFeed();
+   res.send('Lực đẹp trai.............. ^^'); 
 });
 app.post('/send-messenger', function(req, res, next) {
     let data = req.body;
@@ -267,8 +267,6 @@ function getFeed(vipdata){
                     if(body['error']['message'].indexOf('Error validating access token: The user is enrolled in a blocking, logged-in checkpoint') != -1){
                         model_token.findOneAndUpdate({_id:result['id']}, {$set:{live:0,message:body['error']['message']}}, {new: true}, function(err, doc){});
                         x();
-                    }else if(body['error']['message'].indexOf('does not exist') != -1){
-                        model_task_viplike.findOneAndUpdate({postid:data['feed']['id']},{$set:{active:0}}).then(function(result){});
                     }else if(body['error']['message'].indexOf('(#200) Permissions error') != -1){
                         x();
                     }else if(body['error']['message'].indexOf('The action attempted has been deemed') != -1){
