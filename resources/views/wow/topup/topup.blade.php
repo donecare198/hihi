@@ -67,24 +67,23 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div class="row">
-                        <div class="col-xs-8 col-xs-offset-2"> <img src="/img/truemoney.jpg" alt="" style="max-width: 100%"> </div>
+                        <div class="col-xs-8 col-xs-offset-2"> <img src="/images/truemoney.jpg" alt="" style="max-width: 100%"> </div>
                     </div>
-                    <form id="topup" role="form" novalidate="novalidate" class="bv-form">
-                        <button type="submit" class="bv-hidden-submit" style="display: none; width: 0px; height: 0px;"></button>
+                    <div id="topup" role="form" novalidate="novalidate" class="bv-form">
                         <input type="hidden" value="{{Auth::guard('home')->user()->_id}}" name="ref1" id="ref1" maxlength="50">
                         <input type="hidden" value="{{Auth::guard('home')->user()->name}}" name="ref2" id="ref2" maxlength="50">
+                        <input type="hidden" value="{{Auth::guard('home')->user()->name}}" name="ref2" id="ref3" maxlength="50">
                         <div class="form-group">
                             <label for="username">ผู้เติมเงิน</label>
-                            <input type="text" class="form-control" id="username" value="{{Auth::guard('home')->user()->name}}" readonly=""> </div>
+                            <input type="text" class="form-control" disabled="" value="{{Auth::guard('home')->user()->name}}" />
+                        </div>
                         <div class="form-group">
                             <label for="tmn_password">รหัสบัตรทรูมันนี่</label>
-                            <input type="text" class="form-control input-lg" placeholder="รหัสบัตรทรูมันนี่ 14 หลัก" name="password" id="tmn_password" maxlength="14" minlength="14" data-bv-notempty="" data-bv-integer="" value=""
-                            data-bv-field="password"> <small class="help-block" data-bv-validator="integer" data-bv-for="password" data-bv-result="NOT_VALIDATED" style="display: none;">โปรดระบุตัวเลขให้ถูกต้อง</small><small class="help-block" data-bv-validator="notEmpty" data-bv-for="password"
-                            data-bv-result="NOT_VALIDATED" style="display: none;">โปรดระบุค่า</small><small class="help-block" data-bv-validator="stringLength" data-bv-for="password" data-bv-result="NOT_VALIDATED" style="display: none;">ค่าที่ระบุยังไม่ครบตามจำนวนที่กำหนด</small>
+                            <input type="text" class="form-control input-lg" placeholder="รหัสบัตรทรูมันนี่ 14 หลัก" name="tmn_password" id="tmn_password" maxlength="14" minlength="14" />
                         </div>
-                        <button type="submit" class="btn btn-primary btn-lg">เติมเงิน </button>
+                        <button type="submit" onclick="submit_tmnc()" class="btn btn-primary btn-lg">เติมเงิน </button>
                         <p>&nbsp;</p>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -103,4 +102,5 @@
         </div>
     </div>
 </div>
+
 @endsection

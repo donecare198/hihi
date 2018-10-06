@@ -110,7 +110,10 @@ VIPID 100006684784400 của bạn đã hết hạn. Vui lòng gia hạn dịch v
                     },
         
                 ));
-                LogLikes::insert($log_likes);
+                if(sizeof($log_likes) > 0){
+                    LogLikes::insert($log_likes);    
+                }
+                
                 TaskVipLike::where('_id',$data->_id)->increment('hoanthanh',$success);
                 var_dump(['success'=>$success,'error'=>$error]).'<br />';
             }
@@ -132,7 +135,7 @@ VIPID 100006684784400 của bạn đã hết hạn. Vui lòng gia hạn dịch v
     }
     function getTaskVipLike(){
         echo date('d-m-Y H:i:s',time()).'<br />';
-        $viplike = Viplike::where('active',1)->orderBy('updated_at','asc')->lockForUpdate()->get();
+        $viplike = Viplike::where('active',1)->orderBy('updated_at','asc')->lockForUpdate()->limit(5)->get();
         foreach($viplike as $v){
             $v->updated_at = Carbon::now();
             $v->save();

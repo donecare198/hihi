@@ -1,5 +1,10 @@
 @extends('wow.master')
 @section('content')
+<?php
+    use App\Http\Controllers\CaptchaController;
+    $captcha = new CaptchaController();
+    $vip = DB::collection('user_meta')->where(['active'=>1,'fbid'=>Auth::guard('home')->user()->fbid,'type'=>'follow'])->first();
+?>
 <div class="container" id="app">
     <div class="row">
         <div class="col-sm-6">
@@ -31,6 +36,30 @@
         </div>
         <div class="col-md-6">
             <div>
+                @if($vip)
+                <div id="premium-countdown" class="hidden-xs">
+                    <h3><i class="fa fa-star"></i> VIP จะหมดในอีก</h3>
+                    <div class="countdown">
+                        <ul>
+                            <li><span class="days">@{{days}}</span>
+                                <p class="days_ref">วัน</p>
+                            </li>
+                            <li class="seperator">.</li>
+                            <li><span class="hours">@{{hours}}</span>
+                                <p class="hours_ref">ชั่วโมง</p>
+                            </li>
+                            <li class="seperator">:</li>
+                            <li><span class="minutes">@{{minutes}}</span>
+                                <p class="minutes_ref">นาที</p>
+                            </li>
+                            <li class="sepe rator">:</li>
+                            <li><span class="seconds">@{{seconds}}</span>
+                                <p class="seconds_ref">วินาที</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                @endif
                 <div class="list-group list-log hidden-xs">
                     <div class="list-group-item"> <b>ประวัติ</b> </div>
                     <div class="list-group-item" v-if="log.length == 0"> <i>ไม่มี</i> </div>
@@ -41,12 +70,25 @@
     </div>
 </div>
 <script>
+
+$(document).ready(function(){
+        $("#premium-countdown").countdown("{{date('Y-m-d H:i:s',strtotime($vip['time_expired']))}}", function(e) {
+            vv.$data.days = e.offset.daysToMonth;
+            vv.$data.hours = e.offset.hours;
+            vv.$data.minutes = e.offset.minutes;
+            vv.$data.seconds = e.offset.seconds;
+          });
+});
 var vv=new Vue({
     el: '#app',
     data: {
         a: 1,
         feed: [],
         log: [],
+        days : 0,
+        hours : 0,
+        minutes : 0,
+        seconds : 0,
     },
     computed:{
     

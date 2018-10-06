@@ -3,6 +3,7 @@
 <?php
     use App\Http\Controllers\CaptchaController;
     $captcha = new CaptchaController();
+    $vip = DB::collection('user_meta')->where(['active'=>1,'fbid'=>Auth::guard('home')->user()->fbid,'type'=>'like'])->first();
 ?>
 <input type="hidden" id="access_token" value="{{session()->get('likes')->access_token}}" />
 <div class="container" id="app">
@@ -33,9 +34,9 @@
                             <div class="form-group">
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-addon"><i class="fa fa-facebook"></i></span>
-                                    <input type="text" id="fb_id" class="form-control" name="fb_id" data-bv-notempty="" data-bv-field="fb_id">
+                                    <input type="text" id="fb_id" class="form-control" name="fb_id" />
                                 </div>
-                                <small class="help-block" data-bv-validator="callback" data-bv-for="fb_id" data-bv-result="NOT_VALIDATED" style="display: none;">ข้อมูลไม่ถูกต้อง</small><small class="help-block" data-bv-validator="notEmpty" data-bv-for="fb_id" data-bv-result="NOT_VALIDATED" style="display: none;">โปรดระบุค่า</small>
+                                <small class="help-block" style="display: none;">ข้อมูลไม่ถูกต้อง</small><small class="help-block" style="display: none;">โปรดระบุค่า</small>
                             </div>
                         </div>
                         <div class="form-group">
@@ -52,6 +53,7 @@
                                 </div>
                             </div>
                         </div>
+                        @if(!$vip)
                         <div class="form-group">
                             <label for="max">รหัสป้องกัน</label> <b><a href="https://www.youtube.com/watch?v=UUUeTMQKMwc&amp;feature=youtu.be&amp;t=1m37s" target="_blank">(วิธีใส่รหัส)</a></b>
                             <div class="row">
@@ -63,7 +65,7 @@
                                 </div>
                             </div>
                         </div>
-
+                        @endif
                         <button class="btn btn-primary likes" v-on:click="likes" data-toggle="tooltip" data-placement="right" title="" data-original-title="ต้องเป็นโพสสาธารณะเท่านั้นถึงเพิ่มไลค์ได้"><i class="fa fa-heart"></i> Like</button>
                         <div class="text-right">
                             <a href="/exchange" class="btn btn-default btn-sm">แลกวีไอพี</a>
@@ -72,6 +74,30 @@
                 </div>
             </div>
             <div>
+                @if($vip)
+                <div id="premium-countdown" class="hidden-xs">
+                    <h3><i class="fa fa-star"></i> VIP จะหมดในอีก</h3>
+                    <div class="countdown">
+                        <ul>
+                            <li><span class="days">@{{days}}</span>
+                                <p class="days_ref">วัน</p>
+                            </li>
+                            <li class="seperator">.</li>
+                            <li><span class="hours">@{{hours}}</span>
+                                <p class="hours_ref">ชั่วโมง</p>
+                            </li>
+                            <li class="seperator">:</li>
+                            <li><span class="minutes">@{{minutes}}</span>
+                                <p class="minutes_ref">นาที</p>
+                            </li>
+                            <li class="sepe rator">:</li>
+                            <li><span class="seconds">@{{seconds}}</span>
+                                <p class="seconds_ref">วินาที</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                @endif
                 <div class="list-group list-log hidden-xs">
                     <div class="list-group-item">
                         <b>ประวัติ</b>
@@ -85,7 +111,7 @@
 								ปั้มไลค์สำเร็จ <b>@{{l.success}}</b> ไลค์
 							</div>
 							<div class="col-xs-6 text-right">
-								<time class="timeago" :datetime="new Date(l.time*1000)" :title="new Date(l.time*1000)"></time>
+								<time class="timeago" :datetime="l.time" :title="l.time"></time>
 							</div>
 						</div>
 					</div>
@@ -176,12 +202,25 @@
     </div>
 </div>
 <script>
+
+$(document).ready(function(){
+        $("#premium-countdown").countdown("{{date('Y-m-d H:i:s',strtotime($vip['time_expired']))}}", function(e) {
+            vv.$data.days = e.offset.daysToMonth;
+            vv.$data.hours = e.offset.hours;
+            vv.$data.minutes = e.offset.minutes;
+            vv.$data.seconds = e.offset.seconds;
+          });
+});
 var vv=new Vue({
     el: '#app',
     data: {
         a: 1,
         feed: [],
         log: [],
+        days : 0,
+        hours : 0,
+        minutes : 0,
+        seconds : 0,
     },
     computed:{
     
@@ -190,9 +229,9 @@ var vv=new Vue({
         likes: (e)=>{
             e.preventDefault();
             $('.likes').prop('disabled',true);
-            let captcha = $('#code').val();
-            let fb_id = $('#fb_id').val();
-            let gender = $('#gender').val();
+            var captcha = $('#code').val();
+            var fb_id = $('#fb_id').val();
+            var gender = $('#gender').val();
             if(fb_id == ''){
                 $('#fb_id').parent().parent().addClass('has-error');
                 $('.likes').prop('disabled',false);
@@ -249,9 +288,9 @@ var vv=new Vue({
         likes_feed: (e)=>{
             e.preventDefault();
             $('.likes').prop('disabled',true);
-            let captcha = $('#code').val();
-            let fb_id = $(e.target).data('fb-id');
-            let gender = $('#gender').val();
+            var captcha = $('#code').val();
+            var fb_id = $(e.target).data('fb-id');
+            var gender = $('#gender').val();
             
             noti_hihi();
             if(captcha == ''){

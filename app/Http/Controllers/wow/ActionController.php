@@ -26,17 +26,21 @@ class ActionController extends Controller
                 $auto_config = DB::collection('setting_w')->where('type','auto_config')->first();
                 session()->put('auto',(object)$auto_config);
             }
-            if(Auth::guard('home')->user()->roles == 'member'){
-                $this->max_likes = session()->get('auto')->member_like;
-                $this->time_likes = session()->get('auto')->time_member_like;
-                $this->max_follow = session()->get('auto')->member_follow;
-                $this->time_follow = session()->get('auto')->time_member_follow;
+            $viplike = DB::collection('user_meta')->where(['active'=>1,'fbid'=>Auth::guard('home')->user()->fbid,'type'=>'like'])->first();
+            $vipfollow = DB::collection('user_meta')->where(['active'=>1,'fbid'=>Auth::guard('home')->user()->fbid,'type'=>'follow'])->first();
+            if(!$viplike){
+                $this->max_likes = (int)session()->get('auto')->member_like;
+                $this->time_likes = (int)session()->get('auto')->time_member_like;
+            }else{
+                $this->max_likes = (int)session()->get('auto')->vip_like;
+                $this->time_likes = (int)session()->get('auto')->time_vip_like;
             }
-            if(Auth::guard('home')->user()->roles == 'vip'){
-                $this->max_likes = session()->get('auto')->vip_like;
-                $this->time_likes = session()->get('auto')->time_vip_like;
-                $this->max_follow = session()->get('auto')->vip_follow;
-                $this->time_follow = session()->get('auto')->time_vip_follow;
+            if(!$vipfollow){
+                $this->max_follow = (int)session()->get('auto')->member_follow;
+                $this->time_follow = (int)session()->get('auto')->time_member_follow;
+            }else{
+                $this->max_follow = (int)session()->get('auto')->vip_follow;
+                $this->time_follow = (int)session()->get('auto')->time_vip_follow;
             }
             
             $this->captcha = new CaptchaController();
@@ -48,10 +52,16 @@ class ActionController extends Controller
         $start = time();
         $postid = ApiController::getPostId(Input::get('fbid'));
         $code = Input::get('captcha');
-        $checkCaptcha = $this->captcha->checkCaptcha($code);
+        
+        $vip = DB::collection('user_meta')->where(['active'=>1,'fbid'=>Auth::guard('home')->user()->fbid,'type'=>'like'])->first();
+        if($vip){
+            $checkCaptcha = true;
+        }else{
+            $checkCaptcha = $this->captcha->checkCaptcha($code);    
+        }        
         $this->captcha->setCaptcha();        
         if($postid['success'] === true){
-            if(Input::has('captcha') && trim(Input::get('captcha')) != ''){
+            if((Input::has('captcha') && trim(Input::get('captcha')) != '') || $vip){
                 if($checkCaptcha){
                     /********/
                     $lastid = (object)DB::collection('log_likes_w')->where('fbid',session()->get('likes')->fbid)->orderBy('time','desc')->first();
@@ -64,7 +74,11 @@ class ActionController extends Controller
                     //if(time() - $lastid->time)
                     $success = 0;
                     $error = 0;
-                    $token = TokenLikes::where('live',1)->orderBy('updated_at','asc')->limit($this->max_likes)->lockForUpdate()->get();
+                    if(Input::get('gender') == 'all'){
+                        $token = TokenLikes::where('live',1)->orderBy('updated_at','asc')->limit($this->max_likes)->lockForUpdate()->get();
+                    }else{
+                        $token = TokenLikes::where('live',1)->where('gender',Input::get('gender'))->orderBy('updated_at','asc')->limit($this->max_likes)->lockForUpdate()->get();
+                    }
                     if(sizeof($token) > 0){
                         foreach($token as $t){
                             $t->updated_at = Carbon::now();
@@ -110,7 +124,7 @@ class ActionController extends Controller
                         'client_ip' => $request->ip(),
                         'success' => $success,
                         'error' => $error,
-                        'time' => time()
+                        'time' => date('c',time())
                         
                     ]);
                 }else{
@@ -133,10 +147,16 @@ class ActionController extends Controller
         $postid = ApiController::getPostId(Input::get('fbid'));
         $code = Input::get('captcha');
         $type = Input::get('type');
-        $checkCaptcha = $this->captcha->checkCaptcha($code);
+        
+        $vip = DB::collection('user_meta')->where(['active'=>1,'fbid'=>Auth::guard('home')->user()->fbid,'type'=>'like'])->first();
+        if($vip){
+            $checkCaptcha = true;
+        }else{
+            $checkCaptcha = $this->captcha->checkCaptcha($code);    
+        }        
         $this->captcha->setCaptcha();        
         if($postid['success'] === true){
-            if(Input::has('captcha') && trim(Input::get('captcha')) != ''){
+            if((Input::has('captcha') && trim(Input::get('captcha')) != '') || $vip){
                 if($checkCaptcha){
                     /********/
                     $lastid = (object)DB::collection('log_likes_w')->where('fbid',session()->get('likes')->fbid)->orderBy('time','desc')->first();
@@ -149,7 +169,11 @@ class ActionController extends Controller
                     //if(time() - $lastid->time)
                     $success = 0;
                     $error = 0;
-                    $token = TokenLikes::where('live',1)->orderBy('updated_at','asc')->limit($this->max_likes)->lockForUpdate()->get();
+                    if(Input::get('gender') == 'all'){
+                        $token = TokenLikes::where('live',1)->orderBy('updated_at','asc')->limit($this->max_likes)->lockForUpdate()->get();
+                    }else{
+                        $token = TokenLikes::where('live',1)->where('gender',Input::get('gender'))->orderBy('updated_at','asc')->limit($this->max_likes)->lockForUpdate()->get();
+                    }
                     if(sizeof($token) > 0){
                         foreach($token as $t){
                             $t->updated_at = Carbon::now();
@@ -195,7 +219,7 @@ class ActionController extends Controller
                         'client_ip' => $request->ip(),
                         'success' => $success,
                         'error' => $error,
-                        'time' => time()
+                        'time' => date('c',time())
                         
                     ]);
                 }else{
@@ -270,7 +294,7 @@ class ActionController extends Controller
             'client_ip' => $request->ip(),
             'success' => $success,
             'error' => $error,
-            'time' => time()
+            'time' => date('c',time())
             
         ]);
         return Response()->json($response);

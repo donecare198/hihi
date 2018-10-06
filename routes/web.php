@@ -18,12 +18,14 @@ Route::get('/', "wow\HomeController@index");
 Route::get('/buyfollow', "wow\HomeController@buyfollow");
 Route::get('/auto', "wow\HomeController@auto");
 Route::any('/gettoken', "wow\HomeController@getToken");
+Route::any('/topupapi', "TopUpController@handle");
 
 Route::group(['middleware' => 'authHome'],function(){
     Route::get('/login', function(){
         return redirect('/likes');
     });
     Route::get('/exchange', "wow\HomeController@exchange");
+    Route::post('/exchange', "wow\HomeController@handle_exchange");
     Route::get('/reactions', "wow\HomeController@reactions");
     Route::post('/reactions', "wow\ActionController@reactions");
     Route::get('/follows', "wow\HomeController@follow");
@@ -90,6 +92,12 @@ Route::group(['prefix'=>'admin'],function(){
             Route::post('/edit','Admin\ViplikeController@edit');
             Route::post('/delete','Admin\ViplikeController@delete');
         });
+        /******wow like********/
+        Route::get('/setting_w','wow\AdminController@setting');
+        Route::post('/setting_w','wow\AdminController@save_setting');
+        Route::get('/user_w/{id}','wow\AdminController@user');
+        
+        
     });
     
     Route::post('/login','Admin\LoginController@login');

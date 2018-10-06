@@ -42,9 +42,9 @@
                 <li class="">
                     <a href="/auto"><i class="fa fa-caret-square-o-right"></i> ปั้มไลค์อัตโนมัติ</a>
                 </li>
-                <li class="">
+                <!--<li class="">
                     <a href="javascript:void(0)" data-toggle="modal" data-target="#video_ytb" ><i class="fa fa-caret-square-o-right"></i> วิธีใช้งานปั้มไลค์</a>
-                </li>
+                </li>-->
                 <li class="">
                 </li>
             </ul>
@@ -61,6 +61,10 @@
     							เข้าสู่ระบบ</a>
                     </li>
                 @else
+                
+                <li>
+					<a><i class="fa fa-money"></i> {{Auth::guard('home')->user()->money}}</a>
+				</li>
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#"><img src="">{{Auth::guard('home')->user()->name}} <span class="caret"></span></a>
                     <ul class="dropdown-menu">

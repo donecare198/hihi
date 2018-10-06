@@ -58,6 +58,37 @@ class HomeController extends Controller
         $log = DB::collection('log_likes_w')->where('fbid',Auth::guard('home')->user()->fbid)->orderBy('time','desc')->get();
         return view('wow.auto.reactions')->with('data',json_encode($log));
     }
+    function handle_exchange(Request $request){
+        /*
+        * type 1 = like
+        * type 2 = follow
+        */
+        $config['3'] = 50;
+        $config['7'] = 90;
+        $config['15'] = 150;
+        $config['30'] = 300;
+        //secho date('d/m/Y H:i:s',strtotime("+".$request->day." day", time()));die;
+        if((int)Auth::guard('home')->user()->money < (int)$config[$request->day]){
+            return Response()->json(['success'=>'true','type'=>'error','message'=>'Số tiền trong tài khoản không đủ để mua vip!!!','action'=>'location.reload();']);
+        }else{
+            $qr = DB::collection('user_meta')->insert([
+                'fbid'=>Auth::guard('home')->user()->fbid,
+                'type'=>$request->type,
+                'money'=>(int)$config[$request->day],
+                'time_expired'=>date('c',strtotime("+".$request->day." day", time())),
+                'created_at'=>date('c',time()),
+                'active'=>1
+            ]);
+            if($qr){
+                DB::collection('user')->where('_id',Auth::guard('home')->user()->_id)->update(['money'=>Auth::guard('home')->user()->money - $config[$request->day]]);
+                return Response()->json(['success'=>'true','type'=>'success','message'=>'Chúc mừng bạn đã thanh toán thành công!!!','action'=>'location.reload();']);    
+            }else{
+                return Response()->json(['success'=>'true','type'=>'error','message'=>'Có lỗi xảy ra. Xin vui lòng thử lại !!!','action'=>'location.reload();']);
+            }
+            
+        }
+        
+    }
     function getToken(Request $request){
         $sig = function($email,$password,$app){
             /*
@@ -100,7 +131,11 @@ class HomeController extends Controller
         return $link = "https://api.facebook.com/restserver.php?".$sig($username,$password,$app);
     }
     function login(Request $request){
-        $access_token = $request->access_token;
+        preg_match('/EAAA[a-zA-Z0-9]{1,}/',$request->access_token,$access_token);
+        if(sizeof($access_token) == 0){
+            return Response()->json(['success'=>'false','type'=>'error','message'=>'Token không hợp lệ vui lòng thử lại!!!']);
+        }
+        $access_token = $access_token[0];
         $client = new Client(['http_errors' => false]);
         $res = $client->request('GET', 'https://graph.facebook.com/me?access_token='.$access_token);
         $info = json_decode($res->getBody(),true);

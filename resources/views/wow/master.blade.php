@@ -28,7 +28,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="/cdn/toastr/toastr.min.js" type="text/javascript"></script>
     <script src="/js/countdown.min.js" type="text/javascript"></script>
-    
+    <script type="text/javascript" src="https://www.tmtopup.com/topup/3rdTopup.php?uid=218164"></script> 
   </head>
   <body class="">
     <script>
@@ -112,6 +112,10 @@
             border: 1px solid #dddd;
             box-shadow: 0px 0px 5px 0px #350;
             margin-top: 35px;
+        }
+        .ui-dialog{
+                left: 40% !important;
+                top: 25%;
         }
       </style>
   </body>

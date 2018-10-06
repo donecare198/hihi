@@ -67,11 +67,11 @@ function refresh_feed(){
         if(data.error){
         }
     }).fail((data)=>{
-        if((data.error.message).indexOf('Error validating access token: The user is enrolled in a blocking, logged-in checkpoint') != -1){
+        //if((data.error.message).indexOf('Error validating access token: The user is enrolled in a blocking, logged-in checkpoint') != -1){
             $.get('/logout',function(){
                 location.reload();
             });
-        }
+        //}
     })
     $('#feed').fadeIn(2000);
 }

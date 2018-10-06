@@ -69,6 +69,18 @@
     </li>
     <li class="treeview">
       <a href="#">
+        <i class="fa fa-dashboard"></i> <span>Wow Like</span>
+        <span class="pull-right-container">
+          <i class="fa fa-angle-left pull-right"></i>
+        </span>
+      </a>
+      <ul class="treeview-menu">
+        <li class=""><a href="/admin/user_w"><i class="fa fa-circle-o"></i> User Manager</a></li>
+        <li class=""><a href="/admin/setting_w"><i class="fa fa-circle-o"></i> Setting</a></li>        
+      </ul>
+    </li>
+    <li class="treeview">
+      <a href="#">
         <i class="fa fa-dashboard"></i> <span>Tools</span>
         <span class="pull-right-container">
           <i class="fa fa-angle-left pull-right"></i>

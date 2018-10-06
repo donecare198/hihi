@@ -19,7 +19,7 @@ var notification = require('./send_messenger.js')
 mongoose.connect('mongodb://localhost/viplike');
 const model_token = mongoose.model('tokens',new mongoose.Schema({fbid:String,access_token:String,name:String,gender:String,locale:String,avatar:Boolean,live:Number,use:Number,message:String,updated_at:String,created_at:String}),'tokens')
 const model_viplike = mongoose.model('viplike',new mongoose.Schema({fbid:String,thoigian:String,limit:String,goi:String,reaction:String,thongbao:String,fbid_notification:String,active:Number,updated_at:Date,created_at:Date}),'viplike')
-const model_task_viplike = mongoose.model('task_viplike',new mongoose.Schema({fbid:String,postid:String,actionid:String,hoanthanh:Number,loi:String,active:Number,story:String,limit:Number,goi:Number,reaction:String,updated_at:String,created_at:String}),'task_viplike')
+const model_task_viplike = mongoose.model('task_viplike',new mongoose.Schema({fbid:String,postid:String,actionid:String,hoanthanh:Number,loi:Number,active:Number,story:String,limit:Number,goi:Number,reaction:String,updated_at:String,created_at:String}),'task_viplike')
 const useragent = mongoose.model('useragent',new mongoose.Schema({text:String,sudung:Number,lock:Number}),'useragent')
 
 app.use( bodyParser.json({limit: '50mb'}) );
@@ -34,14 +34,25 @@ app.use(function (req, res, next) {
 
 
 new CronJob('0 */5 * * * *', function() {
-   request.get('https://likedao.biz/api/getTaskVipLike',function(e, r, b){})
+    request.get('https://likedao.biz/api/sendLikes',function(e, r, b){console.log(b)})
+    /*model_task_viplike.count({ active: 1 , loi: 0}, function (err, count) {
+      if (err) console.log(err+'')
+          for(tl = 0; tl <= parseInt(count / 5) ; tl++){
+            request.get('https://likedao.biz/api/sendLikes',function(e, r, b){console.log(b)})
+          }
+    });*/
 }, null, true, 'America/Chicago');
-new CronJob('0 */5 * * * *', function() {
-   request.get('https://likedao.biz/api/sendLikes',function(e, r, b){})
+new CronJob('0 */2 * * * *', function() {
+    model_viplike.count({ active: 1}, function (err, count) {
+      if (err) console.log(err+'')
+          for(vl = 0; vl <= parseInt(count / 5) ; vl++){
+            request.get('https://likedao.biz/api/getTaskVipLike',function(e, r, b){console.log(b)})
+          }
+    });
 }, null, true, 'America/Chicago');
 
 app.get('/',function(req, res, next){
-   LoadPostInFeed();
+   //LoadPostInFeed();
    res.send('Lực đẹp trai.............. ^^'); 
 });
 app.post('/send-messenger', function(req, res, next) {
@@ -64,13 +75,12 @@ app.get('/getfbid', function(req, res, next) {
     res.set({ 'content-type': 'application/json; charset=utf-8' });
     let $this = res;
     let link = req.query.link;
-    console.log(link)
     if(link != undefined || link == ''){
         try{
             request({
                 headers: {
                     'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1',
-                    'cookie': 'sb=4FmcWxSR0YdFpF3eEHvXphOl; datr=4FmcW43GMeuUivpB5QmYZjB0; c_user=100004520190007; xs=17%3AeEYIXeZTK5QIyQ%3A2%3A1536973296%3A13300%3A6189; pl=n; spin=r.4314645_b.trunk_t.1536973297_s.1_v.2_; fr=1r3TEfdi8mMwgkCQi.AWW8EqpKsmItrQJ-mEXixdtnQT4.BbnFng.xu.Fuc.0.0.BbnHZG.AWXcyLpB; act=1536980552973%2F139; wd=2560x485; presence=EDvF3EtimeF1536980940EuserFA21B0452019B7A2EstateFDsb2F1536979250939EatF1536980781082Et3F_5bDiFA2user_3a1B03117861155A2ErF1EoF1EfF1CAcDiFA2user_3a1B02928143589A2ErF1EoF2EfF2C_5dEutc3F1536979248710G536980940734CEchFDp_5f1B0452019B7F2322CC',
+                    'cookie': 'sb=xbe2W8vEc5PkcF1Z9BQM9PU4; datr=xbe2WwhX82QoMrVR4UU50zxx; c_user=100004520190007; xs=40%3A7tQesHH-XFBfqQ%3A2%3A1538701267%3A13300%3A6189; pl=n; fr=1ePohqssJHQqPZclm.AWVE5hUqRY7tLaCHO-jTasmU_hI.BbtrfF.0y.Fu2.0.0.BbtvEC.AWWZYePp; spin=r.4387668_b.trunk_t.1538716489_s.1_v.2_; wd=1731x938; presence=EDvF3EtimeF1538719378EuserFA21B0452019B7A2EstateFDsb2F1538717091425EatF1538717096843Et3F_5b_5dEutc3F1538717110770G538719378583CEchFDp_5f1B0452019B7F53CC; act=1538719379056%2F5; x-src=%2Fbuiminhphuc.vt%7Cpagelet_bluebar; pnl_data2=eyJhIjoib25hZnRlcmxvYWQiLCJjIjoiV2ViVGltZWxpbmVDb250cm9sbGVyOnRpbWVsaW5lIiwiYiI6ZmFsc2UsImQiOiIvYnVpbWluaHBodWMudnQiLCJlIjpbXX0%3D',
                 },
                 uri: link,
                 method: 'GET'
@@ -83,7 +93,16 @@ app.get('/getfbid', function(req, res, next) {
                         let name = ($("title").text()).replace(/ - Home| \| Facebook|car| - Trang chủ/gi,'');
                         $this.send({'success':true,'name':name,'fbid':fbid});
                     }catch(e){
-                        $this.send({'success':false,'message':'Không thể tìm thấy link fb'});
+                        try{
+                            arr = [];
+                            var $ = cheerio.load(body,{ decodeEntities: false });
+                            let x = body.match(/entity_id:([0-9]{0,})/);
+                            let fbid = x[1];
+                            let name = ($("title").text()).replace(/ - Home| \| Facebook|car| - Trang chủ/gi,'');
+                            $this.send({'success':true,'name':name,'fbid':fbid});
+                        }catch(e){
+                            $this.send({'success':false,'message':'Không thể tìm thấy link fb'});
+                        }
                     }
                 }
             );

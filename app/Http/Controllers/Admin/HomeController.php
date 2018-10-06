@@ -45,6 +45,12 @@ class HomeController extends Controller
         $result = DB::collection('useragent')->orderBy('sudung',1)->lockForUpdate()->first();
         return DB::collection('useragent')->where('_id',$result['_id'])->update(['sudung'=>$result['sudung'] + 1]);
     }
+//    $_CONFIG['TMN'][50]['point'] = 120;					// Point ที่ได้รับเมื่อเติมเงินราคา 50 บาท
+//    $_CONFIG['TMN'][90]['point'] = 200;					// Point ที่ได้รับเมื่อเติมเงินราคา 90 บาท
+//    $_CONFIG['TMN'][150]['point'] = 350;				// Point ที่ได้รับเมื่อเติมเงินราคา 150 บาท
+//    $_CONFIG['TMN'][300]['point'] = 800;				// Point ที่ได้รับเมื่อเติมเงินราคา 300 บาท
+//    $_CONFIG['TMN'][500]['point'] = 1200;				// Point ที่ได้รับเมื่อเติมเงินราคา 500 บาท
+//    $_CONFIG['TMN'][1000]['point'] = 2000;	
     function install_setting(){
         if(!Schema::hasTable('setting_w')){
             $db = DB::collection('setting_w')->insert([
@@ -56,8 +62,11 @@ class HomeController extends Controller
             'time_member_follow' => 20,
             'vip_follow' => 20,
             'time_vip_follow' => 20,
+            'member_like_perday' => 20,
+            'vip_like_perday' => 25,
             'type' => 'auto_config'
         ]);
+        
             return ['message'=>'Lực đẹp trai!!!!'];
         }else{
             return ['message'=>'Lực đẹp trai!!!!'];
