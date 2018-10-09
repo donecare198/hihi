@@ -7,6 +7,7 @@ use DB;
 use App\Http\Controllers\Controller;
 use Response;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Redirect;
 class AdminController extends Controller
 {
     function setting(){
