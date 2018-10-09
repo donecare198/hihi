@@ -17,7 +17,7 @@ class Home extends Authenticatable
      */
     protected $collection = 'user';
     protected $fillable = [
-        'fbid', 'name','money','roles'
+        'fbid', 'name','money','roles','active'
     ];
 
     /**
