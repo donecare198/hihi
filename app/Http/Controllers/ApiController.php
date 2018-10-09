@@ -119,7 +119,7 @@ VIPID 100006684784400 của bạn đã hết hạn. Vui lòng gia hạn dịch v
             }
         };
             
-        $task = TaskVipLike::where(['active'=>1,'loi'=>0])->orderBy('updated_at','asc')->lockForUpdate()->get();
+        $task = TaskVipLike::where(['active'=>1,'loi'=>0])->orderBy('updated_at','asc')->lockForUpdate()->limit(10)->get();
         foreach($task as $t){
             $t->updated_at = Carbon::now();
             $t->save();
@@ -135,7 +135,7 @@ VIPID 100006684784400 của bạn đã hết hạn. Vui lòng gia hạn dịch v
     }
     function getTaskVipLike(){
         echo date('d-m-Y H:i:s',time()).'<br />';
-        $viplike = Viplike::where('active',1)->orderBy('updated_at','asc')->lockForUpdate()->limit(5)->get();
+        $viplike = Viplike::where('active',1)->orderBy('updated_at','asc')->lockForUpdate()->limit(10)->get();
         foreach($viplike as $v){
             $v->updated_at = Carbon::now();
             $v->save();

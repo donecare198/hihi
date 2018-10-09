@@ -20,6 +20,13 @@ Route::get('/auto', "wow\HomeController@auto");
 Route::any('/gettoken', "wow\HomeController@getToken");
 Route::any('/topupapi', "TopUpController@handle");
 
+
+Route::get('/captcha', "CaptchaController@getCaptcha");
+Route::post('/login', "wow\HomeController@login");
+Route::get('/logout', "wow\HomeController@logout");
+
+
+
 Route::group(['middleware' => 'authHome'],function(){
     Route::get('/login', function(){
         return redirect('/likes');
@@ -34,11 +41,6 @@ Route::group(['middleware' => 'authHome'],function(){
     Route::post('/likes', "wow\ActionController@likes");
     Route::get('/topup', "wow\HomeController@topup");
 });
-
-
-Route::get('/captcha', "CaptchaController@getCaptcha");
-Route::post('/login', "wow\HomeController@login");
-Route::get('/logout', "wow\HomeController@logout");
 
 
 
@@ -95,7 +97,13 @@ Route::group(['prefix'=>'admin'],function(){
         /******wow like********/
         Route::get('/setting_w','wow\AdminController@setting');
         Route::post('/setting_w','wow\AdminController@save_setting');
-        Route::get('/user_w/{id}','wow\AdminController@user');
+        Route::get('/user_w','wow\AdminController@user');
+        Route::get('/user_w/{id}','wow\AdminController@view_user');
+        Route::post('/edit-user','wow\AdminController@edit_user');
+        Route::post('/addlike','wow\AdminController@addLike');
+        Route::post('/addfollow','wow\AdminController@addFollow');
+        Route::get('/block_user/{id}/{type}','wow\AdminController@blockUser');
+        
         
         
     });

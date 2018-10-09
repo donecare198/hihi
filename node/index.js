@@ -43,12 +43,13 @@ new CronJob('0 */5 * * * *', function() {
     });*/
 }, null, true, 'America/Chicago');
 new CronJob('0 */2 * * * *', function() {
-    model_viplike.count({ active: 1}, function (err, count) {
+    request.get('https://likedao.biz/api/getTaskVipLike',function(e, r, b){console.log(b)})
+    /*model_viplike.count({ active: 1}, function (err, count) {
       if (err) console.log(err+'')
           for(vl = 0; vl <= parseInt(count / 5) ; vl++){
             request.get('https://likedao.biz/api/getTaskVipLike',function(e, r, b){console.log(b)})
           }
-    });
+    });*/
 }, null, true, 'America/Chicago');
 
 app.get('/',function(req, res, next){

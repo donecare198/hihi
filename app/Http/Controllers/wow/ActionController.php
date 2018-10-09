@@ -50,7 +50,8 @@ class ActionController extends Controller
     }
     function likes(Request $request){
         $start = time();
-        $postid = ApiController::getPostId(Input::get('fbid'));
+        //$postid = ApiController::getPostId(Input::get('fbid'));
+        $postid = ['success'=>true,'postid'=>Input::get('fbid')];
         $code = Input::get('captcha');
         
         $vip = DB::collection('user_meta')->where(['active'=>1,'fbid'=>Auth::guard('home')->user()->fbid,'type'=>'like'])->first();
@@ -144,7 +145,8 @@ class ActionController extends Controller
     }
     function reactions(Request $request){
         $start = time();
-        $postid = ApiController::getPostId(Input::get('fbid'));
+        //$postid = ApiController::getPostId(Input::get('fbid'));
+        $postid = ['success'=>true,'postid'=>Input::get('fbid')];
         $code = Input::get('captcha');
         $type = Input::get('type');
         

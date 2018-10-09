@@ -146,12 +146,17 @@ class HomeController extends Controller
                     'fbid'=>$info['id'],
                     'name'=>$info['name'],
                     'money'=>0,
-                    'roles'=>'member'
+                    'roles'=>'member',
+                    'active'=>1
                 ));
             }else{
-                Home::where('fbid',$info['id'])->update(array(
-                    'name'=>$info['name']
-                ));
+                if($user['active'] == 1){
+                    Home::where('fbid',$info['id'])->update(array(
+                        'name'=>$info['name']
+                    ));
+                }else{
+                    return Response()->json(['success'=>'false','type'=>'error','message'=>'Admin Block!!!']);
+                }
             }
             $user = Home::where('fbid',$info['id'])->first();
             if($request->type == 'likes'){
@@ -168,7 +173,7 @@ class HomeController extends Controller
                         'access_token'=>$access_token,
                         'gender'=>$info['gender'],
                         'locale'=>$info['locale'],
-                        'live'=>1
+                        'live'=>1,
                     ]);
                 }
                 $request->session()->put('likes',$token_likes);
